@@ -36,7 +36,7 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('http://localhost:5010');
+      const res = await axios.get('https://deliver-user-service.onrender.com');
       setUsers(res.data);
     } catch (err) {
       console.error(err);
@@ -48,7 +48,7 @@ const AdminUsers = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await axios.get('http://localhost:5010/admin/verifications');
+      const res = await axios.get('https://deliver-user-service.onrender.com/admin/verifications');
       setRequests(res.data);
     } catch (err) {
       console.error(err);
@@ -66,7 +66,7 @@ const AdminUsers = () => {
   const executeDeleteUser = async () => {
     if (!confirmDeleteUser) return;
     try {
-      await axios.delete(`http://localhost:5010/${confirmDeleteUser}`);
+      await axios.delete(`https://deliver-user-service.onrender.com/${confirmDeleteUser}`);
       setUsers(prev => prev.filter(u => (u.id || u._id) !== confirmDeleteUser));
       addToast('User account deleted successfully.', 'success');
     } catch {
@@ -92,7 +92,7 @@ const AdminUsers = () => {
 
   const handleFinalize = async (status) => {
     try {
-      await axios.put(`http://localhost:5010/admin/verify/${reviewUser.id}`, { status });
+      await axios.put(`https://deliver-user-service.onrender.com/admin/verify/${reviewUser.id}`, { status });
       setRequests(requests.filter(req => req.id !== reviewUser.id));
       setReviewUser(null);
       addToast(status === 'verified' ? 'User verified successfully!' : 'Verification rejected.', status === 'verified' ? 'success' : 'info');

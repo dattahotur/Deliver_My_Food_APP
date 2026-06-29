@@ -60,7 +60,7 @@ export const Earnings = () => {
       setLoading(true);
       const [ordersRes, userRes] = await Promise.all([
         axios.get(`http://localhost:5000/api/orders/driver/${user.id}`),
-        axios.get(`http://localhost:5010/${user.id}`)
+        axios.get(`https://deliver-user-service.onrender.com/${user.id}`)
       ]);
 
       const myCompleted = ordersRes.data.filter(o =>
@@ -146,7 +146,7 @@ export const Earnings = () => {
     setIsWithdrawing(true);
     try {
       const details = withdrawMethod === 'bank' ? bankDetails : { upiId };
-      const res = await axios.post(`http://localhost:5010/${user.id}/withdraw`, {
+      const res = await axios.post(`https://deliver-user-service.onrender.com/${user.id}/withdraw`, {
         amount,
         method: withdrawMethod,
         details
@@ -570,7 +570,7 @@ export const Profile = () => {
         // Fetch all orders assigned to this driver
         const [ordersRes, userRes] = await Promise.all([
           axios.get(`http://localhost:5000/api/orders/driver/${user.id}`),
-          axios.get(`http://localhost:5010/${user.id}`)
+          axios.get(`https://deliver-user-service.onrender.com/${user.id}`)
         ]);
 
         const allDriverOrders = ordersRes.data;

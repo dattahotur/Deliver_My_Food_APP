@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
       // Fetch latest user data from DB to stay in sync
-      axios.get(`http://localhost:5010/${parsedUser.id}`)
+      axios.get(`https://deliver-user-service.onrender.com/${parsedUser.id}`)
         .then(res => {
            setUser(res.data);
            localStorage.setItem('ride_partner_user', JSON.stringify(res.data));
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
   const refreshUser = async () => {
     if (user?.id) {
        try {
-         const res = await axios.get(`http://localhost:5010/${user.id}`);
+         const res = await axios.get(`https://deliver-user-service.onrender.com/${user.id}`);
          setUser(res.data);
          localStorage.setItem('ride_partner_user', JSON.stringify(res.data));
        } catch (err) {
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('http://localhost:5010/login', { email, password });
+      const res = await axios.post('https://deliver-user-service.onrender.com/login', { email, password });
       const userData = res.data.user;
       
       // Ensure only valid drivers can log into this specific app
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     try {
-      const res = await axios.post('http://localhost:5010/register', {
+      const res = await axios.post('https://deliver-user-service.onrender.com/register', {
         name,
         email,
         password,

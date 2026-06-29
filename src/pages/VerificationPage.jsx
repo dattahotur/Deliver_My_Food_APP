@@ -44,7 +44,7 @@ const VerificationPage = () => {
             { type: 'bank', name: docs.bank.name, url: bankBase64 }
           ];
         
-          await axios.post('http://localhost:5010/verify', { userId: user.id, documents: payload });
+          await axios.post('https://deliver-user-service.onrender.com/verify', { userId: user.id, documents: payload });
           localStorage.setItem(`verification_attempts_${user.id}`, (attempts + 1).toString());
           if (refreshUser) await refreshUser();
         } catch (err) {
@@ -111,7 +111,7 @@ const VerificationPage = () => {
               <button className="btn btn-primary" onClick={async () => {
                  // Clear backend status back to none so they can see the upload form
                  try {
-                   await axios.put(`http://localhost:5010/admin/verify/${user.id}`, { status: 'none' });
+                   await axios.put(`https://deliver-user-service.onrender.com/admin/verify/${user.id}`, { status: 'none' });
                    if (refreshUser) await refreshUser();
                  } catch (err) {
                     console.error("Failed to reset status", err);

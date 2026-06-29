@@ -13,7 +13,7 @@ const AdminDashboard = () => {
   const fetchStats = async () => {
     try {
       const [userRes, orderRes] = await Promise.all([
-        axios.get('http://localhost:5010/admin/stats'),
+        axios.get('https://deliver-user-service.onrender.com/admin/stats'),
         axios.get('http://localhost:5000/api/orders/admin/stats')
       ]);
       setStats({

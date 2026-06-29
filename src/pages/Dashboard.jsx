@@ -47,7 +47,7 @@ const Dashboard = () => {
     const newStatus = !isOnline;
     setIsOnline(newStatus);
     try {
-      await axios.put(`http://localhost:5010/${user.id}/online-status`, { isOnline: newStatus });
+      await axios.put(`https://deliver-user-service.onrender.com/${user.id}/online-status`, { isOnline: newStatus });
       if (refreshUser) refreshUser();
     } catch (err) {
       console.error('Failed to toggle online status', err);
@@ -58,7 +58,7 @@ const Dashboard = () => {
   const handleDismissWarning = async () => {
     if (!user?.id) return;
     try {
-      await axios.post(`http://localhost:5010/${user.id}/clear-warnings`);
+      await axios.post(`https://deliver-user-service.onrender.com/${user.id}/clear-warnings`);
       addToast('Warning acknowledged & dismissed.', 'success');
       if (refreshUser) refreshUser();
     } catch (err) {
@@ -104,7 +104,7 @@ const Dashboard = () => {
       // 4. Fetch latest user profile to get synchronized balance
       let availableBalance = 0;
       try {
-        const userRes = await axios.get(`http://localhost:5010/${user.id}`);
+        const userRes = await axios.get(`https://deliver-user-service.onrender.com/${user.id}`);
         availableBalance = userRes.data.availableEarnings || 0;
       } catch (err) {
         console.error("Failed to fetch user balance:", err);
@@ -160,7 +160,7 @@ const Dashboard = () => {
     setIsWithdrawing(true);
     try {
       const details = withdrawMethod === 'bank' ? bankDetails : { upiId };
-      const res = await axios.post(`http://localhost:5010/${user.id}/withdraw`, {
+      const res = await axios.post(`https://deliver-user-service.onrender.com/${user.id}/withdraw`, {
         amount,
         method: withdrawMethod,
         details

@@ -19,8 +19,8 @@ const AdminReports = () => {
     try {
       setLoading(true);
       const [reportsRes, usersRes] = await Promise.all([
-        axios.get('http://localhost:5010/admin/all-reports'),
-        axios.get('http://localhost:5010/admin/all')
+        axios.get('https://deliver-user-service.onrender.com/admin/all-reports'),
+        axios.get('https://deliver-user-service.onrender.com/admin/all')
       ]);
       setReports(reportsRes.data);
       setUsers(usersRes.data);
@@ -38,10 +38,10 @@ const AdminReports = () => {
     
     try {
       if (type === 'restrict') {
-        await axios.delete(`http://localhost:5010/${report.targetUserId}`);
+        await axios.delete(`https://deliver-user-service.onrender.com/${report.targetUserId}`);
         addToast(`Account for ${report.targetUserName} restricted.`, 'error');
       } else {
-        await axios.post('http://localhost:5010/warn-rider', {
+        await axios.post('https://deliver-user-service.onrender.com/warn-rider', {
           targetUserId: report.targetUserId,
           reason: report.feedback,
           adminName: "Platform Admin",
@@ -60,7 +60,7 @@ const AdminReports = () => {
 
   const handleRestore = async (userId, name) => {
     try {
-      await axios.put(`http://localhost:5010/${userId}/restore`);
+      await axios.put(`https://deliver-user-service.onrender.com/${userId}/restore`);
       addToast(`Account for ${name} restored successfully.`, 'success');
       fetchData();
     } catch (err) {

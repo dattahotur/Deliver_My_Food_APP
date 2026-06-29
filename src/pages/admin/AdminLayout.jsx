@@ -27,10 +27,10 @@ const AdminLayout = () => {
     } catch {
       // try on standard port
       try {
-        const vRes = await axios.get('http://localhost:5010/admin/verifications');
+        const vRes = await axios.get('https://deliver-user-service.onrender.com/admin/verifications');
         setPendingCount(vRes.data.length);
         
-        const rRes = await axios.get('http://localhost:5010/admin/all-reports');
+        const rRes = await axios.get('https://deliver-user-service.onrender.com/admin/all-reports');
         setReportCount(rRes.data.length);
       } catch {
         // ignore errors
