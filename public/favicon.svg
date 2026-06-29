@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+  </defs>
+
+  <!-- Speed lines (trailing behind) - adjusted for better centering and visibility -->
+  <path d="M16 35H4" stroke="url(#primaryGradient)" stroke-width="4.5" stroke-linecap="round" opacity="0.5" />
+  <path d="M12 48H2" stroke="url(#primaryGradient)" stroke-width="5.5" stroke-linecap="round" />
+  <path d="M20 62H6" stroke="url(#primaryGradient)" stroke-width="4.5" stroke-linecap="round" opacity="0.7" />
+
+  <!-- Scooter Body & Wheels (Scaled up and thicker strokes for crisp visibility) -->
+  <!-- Back Wheel -->
+  <circle cx="34" cy="74" r="11" fill="#1e293b" stroke="url(#primaryGradient)" stroke-width="5" />
+  <circle cx="34" cy="74" r="4.5" fill="#f8fafc" />
+
+  <!-- Front Wheel -->
+  <circle cx="80" cy="74" r="11" fill="#1e293b" stroke="url(#primaryGradient)" stroke-width="5" />
+  <circle cx="80" cy="74" r="4.5" fill="#f8fafc" />
+
+  <!-- Scooter Frame & Shield -->
+  <path d="M34 74H64L72 43" stroke="#1e293b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M72 43L80 74" stroke="#1e293b" stroke-width="5.5" stroke-linecap="round" />
+  
+  <!-- Handlebars -->
+  <path d="M70 35H80" stroke="url(#primaryGradient)" stroke-width="6.5" stroke-linecap="round" />
+
+  <!-- Delivery Box (Backpack) - Scaled up significantly for brand prominence -->
+  <rect x="18" y="24" width="34" height="34" rx="7" fill="url(#primaryGradient)" />
+  <!-- Accent line on the box -->
+  <path d="M18 36H52" stroke="#047857" stroke-width="2.5" opacity="0.35" />
+  
+  <!-- Leaf detail representing organic/surplus food - Larger and cleaner -->
+  <path d="M35 41C35 36 39 34 41 34C41 34 40 38 38 39C36.5 40 35.5 41 35 41Z" fill="#ffffff" />
+  <path d="M35 41C32.5 40.5 31.5 39 31.5 39C31.5 39 33.5 38.5 35 41Z" fill="#ffffff" opacity="0.85" />
+</svg>

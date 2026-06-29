@@ -1,0 +1,14 @@
+{
+  "name": "ibm2-user-service",
+  "version": "1.0.0",
+  "description": "Standalone user service for the Delivery Partner app (ibm2). Runs on port 5010.",
+  "main": "user-service.js",
+  "scripts": {
+    "start": "node user-service.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mongoose": "^9.7.3"
+  }
+}
