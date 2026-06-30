@@ -59,7 +59,7 @@ export const Earnings = () => {
     try {
       setLoading(true);
       const [ordersRes, userRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/orders/driver/${user.id}`),
+        axios.get(`https://api-gateway-g0a8.onrender.com/api/orders/driver/${user.id}`),
         axios.get(`https://deliver-user-service.onrender.com/${user.id}`)
       ]);
 
@@ -569,7 +569,7 @@ export const Profile = () => {
       try {
         // Fetch all orders assigned to this driver
         const [ordersRes, userRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/orders/driver/${user.id}`),
+          axios.get(`https://api-gateway-g0a8.onrender.com/api/orders/driver/${user.id}`),
           axios.get(`https://deliver-user-service.onrender.com/${user.id}`)
         ]);
 
