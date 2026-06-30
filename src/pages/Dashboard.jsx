@@ -71,11 +71,11 @@ const Dashboard = () => {
     if (!user?.id) return;
     try {
       // 1. Fetch active delivery from Delivery Service
-      const activeRes = await axios.get(`http://localhost:5000/api/delivery/active/${user.id}`);
+      const activeRes = await axios.get(`https://api-gateway-g0a8.onrender.com/api/delivery/active/${user.id}`);
       setActiveDelivery(activeRes.data);
 
       // 2. Fetch available count from Delivery Service
-      const availRes = await axios.get('http://localhost:5000/api/delivery/available');
+      const availRes = await axios.get('https://api-gateway-g0a8.onrender.com/api/delivery/available');
       const available = availRes.data.length;
 
       if (available > prevAvailableRef.current && isOnline) {
@@ -85,7 +85,7 @@ const Dashboard = () => {
       setAvailableCount(available);
 
       // 3. Fetch stats from Order Service (using optimized driver endpoint)
-      const ordersRes = await axios.get(`http://localhost:5000/api/orders/driver/${user.id}`);
+      const ordersRes = await axios.get(`https://api-gateway-g0a8.onrender.com/api/orders/driver/${user.id}`);
       const myCompleted = ordersRes.data.filter(o =>
         (o.deliveryStatus === 'delivered' || o.status === 'completed')
       );
@@ -198,7 +198,7 @@ const Dashboard = () => {
     if (!activeDelivery) return;
     try {
       // Update in delivery service (main source of truth for riders)
-      await axios.put(`http://localhost:5000/api/delivery/${activeDelivery._id}/status`, {
+      await axios.put(`https://api-gateway-g0a8.onrender.com/api/delivery/${activeDelivery._id}/status`, {
         status
       });
       
