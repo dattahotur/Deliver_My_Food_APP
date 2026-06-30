@@ -19,23 +19,14 @@ const AdminLayout = () => {
 
   const fetchStats = async () => {
     try {
-      const vRes = await axios.get('http://localhost:5100/admin/verifications'); // fallback logic
-      setPendingCount(vRes.data.length);
-      
-      const rRes = await axios.get('http://localhost:5100/admin/all-reports'); // fallback logic
-      setReportCount(rRes.data.length);
-    } catch {
-      // try on standard port
-      try {
-        const vRes = await axios.get('https://deliver-user-service.onrender.com/admin/verifications');
-        setPendingCount(vRes.data.length);
-        
-        const rRes = await axios.get('https://deliver-user-service.onrender.com/admin/all-reports');
-        setReportCount(rRes.data.length);
-      } catch {
-        // ignore errors
-      }
-    }
+  const vRes = await axios.get('https://deliver-user-service.onrender.com/admin/verifications');
+  setPendingCount(vRes.data.length);
+
+  const rRes = await axios.get('https://deliver-user-service.onrender.com/admin/all-reports');
+  setReportCount(rRes.data.length);
+} catch (err) {
+  console.error('Failed to fetch admin stats:', err);
+}
   };
 
   const handleLogout = () => {
