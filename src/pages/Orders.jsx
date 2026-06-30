@@ -16,7 +16,7 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/delivery/available');
+      const res = await axios.get('https://api-gateway-g0a8.onrender.com/api/delivery/available');
       setOrders(res.data);
     } catch (err) {
       console.error(err);
@@ -27,7 +27,7 @@ const Orders = () => {
 
   const acceptOrder = async (id) => {
     try {
-      await axios.post(`http://localhost:5000/api/delivery/${id}/accept-delivery`, {
+      await axios.post(`https://api-gateway-g0a8.onrender.com/api/delivery/${id}/accept-delivery`, {
         driverId: user?.id,
         driverName: user?.name
       });
