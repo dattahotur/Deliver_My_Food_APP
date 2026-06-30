@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const mongoose = require('mongoose');
+const axios = require('axios');
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -86,34 +87,43 @@ const seedDrivers = async () => {
   }
 };
 
-const syncUserEarnings = (user) => {
-  return new Promise((resolve) => {
-    http.get(`http://localhost:5003/driver/${user.id}`, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        try {
-          const orders = JSON.parse(data);
-          if (Array.isArray(orders)) {
-            const completed = orders.filter(o => o.deliveryStatus === 'delivered' || o.status === 'completed');
-            const lifetimeEarnings = completed.reduce((sum, o) => sum + (Number(o.price) || 45.00), 0);
-            const totalWithdrawn = (user.withdrawals || []).reduce((sum, w) => sum + Number(w.amount), 0);
-            user.availableEarnings = Math.max(0, lifetimeEarnings - totalWithdrawn);
-            user.save().then(() => resolve());
-            return;
-          }
-        } catch (err) {
-          console.error('[DELIVERY-USER-SERVICE] Error parsing driver orders:', err.message);
-        }
-        resolve();
-      });
-    }).on('error', (err) => {
-      console.error('[DELIVERY-USER-SERVICE] Error fetching driver orders:', err.message);
-      resolve();
-    });
-  });
-};
+const syncUserEarnings = async (user) => {
+  try {
+    const res = await axios.get(
+      `https://api-gateway-g0a8.onrender.com/api/orders/driver/${user.id}`
+    );
 
+    const orders = res.data;
+
+    if (Array.isArray(orders)) {
+      const completed = orders.filter(
+        o => o.deliveryStatus === 'delivered' || o.status === 'completed'
+      );
+
+      const lifetimeEarnings = completed.reduce(
+        (sum, o) => sum + (Number(o.price) || 45.00),
+        0
+      );
+
+      const totalWithdrawn = (user.withdrawals || []).reduce(
+        (sum, w) => sum + Number(w.amount),
+        0
+      );
+
+      user.availableEarnings = Math.max(
+        0,
+        lifetimeEarnings - totalWithdrawn
+      );
+
+      await user.save();
+    }
+  } catch (err) {
+    console.error(
+      '[DELIVERY-USER-SERVICE] Error fetching driver orders:',
+      err.message
+    );
+  }
+};
 // Diagnostic logging
 app.use((req, res, next) => {
   console.log(`[DELIVERY-USER-SERVICE] ${req.method} ${req.url}`);
