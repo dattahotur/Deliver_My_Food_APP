@@ -312,40 +312,34 @@ app.put('/:id/vehicle', async (req, res) => {
 // Delete user (admin)
 app.delete('/:id', async (req, res) => {
   try {
-    const user = await DeliveryPartner.findOne({ id: Number(req.params.id) });
+    const user = await DeliveryPartner.findOne({
+      id: Number(req.params.id)
+    });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({
+        error: "User not found"
+      });
     }
 
-    // soft delete account
-    user.status = 'deleted';
+    user.status = "deleted";
 
-    // free email for new registration
+    // allow same email registration again
     user.email = `deleted_${Date.now()}_${user.email}`;
 
-    // optional: block login with old password also
+    // disable old login
     user.password = `deleted_${Date.now()}`;
-
-    if (user.reports && user.reports.length > 0) {
-      user.reports.forEach(r => {
-        if (!r.actionTaken) {
-          r.actionTaken = 'restricted';
-        }
-      });
-
-      user.markModified('reports');
-    }
 
     await user.save();
 
     res.json({
-      message: 'User account deleted'
+      message: "User deleted successfully"
     });
 
   } catch (err) {
-    console.error('Delete user error:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({
+      error: "Server error"
+    });
   }
 });
 
