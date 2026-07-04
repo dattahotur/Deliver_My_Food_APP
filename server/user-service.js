@@ -551,7 +551,17 @@ app.post('/:id/clear-warnings', async (req, res) => {
 
 // Feedback/rating submission
 app.post(/.*feedback$/, async (req, res) => {
-  const { rating, feedback, isIssue, fromId, fromName, orderId, driverId } = req.body;
+  const { 
+      rating,
+      feedback,
+      message,
+      isIssue,
+      type,
+      fromId,
+      fromName,
+      orderId,
+      driverId
+    } = req.body;
   const pathSegments = req.url.split('/');
   const idFromPath = pathSegments.find(s => s && !isNaN(s));
   const targetId = idFromPath || driverId;
@@ -563,13 +573,13 @@ app.post(/.*feedback$/, async (req, res) => {
     
     const record = {
       rating: Number(rating) || 5,
-      feedback: feedback || '',
+      feedback: feedback || message || '',
       fromId, fromName: fromName || 'Anonymous',
       orderId,
       timestamp: new Date().toISOString()
     };
     
-    if (isIssue) {
+    if (isIssue || type === "report") {
       if (!user.reports) user.reports = [];
       user.reports.push(record);
       user.reportCount = (user.reportCount || 0) + 1;
