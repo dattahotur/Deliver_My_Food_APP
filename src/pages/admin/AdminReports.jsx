@@ -34,11 +34,17 @@ const AdminReports = () => {
 
   const handleAction = async (report, type) => {
     const reportId = report.orderId || report.id;
+    
+    if (type === 'restrict') {
+      const confirmed = window.confirm("Are you sure you want to restrict this rider account?");
+      if (!confirmed) return;
+    }
+
     setActionId(`${reportId}-${type}`);
     
     try {
       if (type === 'restrict') {
-        await axios.delete(`https://deliver-user-service.onrender.com/${report.targetUserId}`);
+        await axios.put(`https://deliver-user-service.onrender.com/${report.targetUserId}/restrict`);
         addToast(`Account for ${report.targetUserName} restricted.`, 'error');
       } else {
         await axios.post('https://deliver-user-service.onrender.com/warn-rider', {
@@ -70,8 +76,8 @@ const AdminReports = () => {
   };
 
   // Filter riders for lists
-  const warnedRiders = users.filter(u => u.role === 'delivery-partner' && u.warnings && u.warnings.length > 0 && u.status !== 'deleted');
-  const restrictedRiders = users.filter(u => u.role === 'delivery-partner' && u.status === 'deleted');
+  const warnedRiders = users.filter(u => u.role === 'delivery-partner' && u.warnings && u.warnings.length > 0 && u.status !== 'deleted' && u.status !== 'restricted');
+  const restrictedRiders = users.filter(u => u.role === 'delivery-partner' && u.status === 'restricted');
 
   return (
     <div className="admin-page-container">

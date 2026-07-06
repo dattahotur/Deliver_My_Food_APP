@@ -18,10 +18,19 @@ export const AuthProvider = ({ children }) => {
       // Fetch latest user data from DB to stay in sync
       axios.get(`https://deliver-user-service.onrender.com/${parsedUser.id}`)
         .then(res => {
-           setUser(res.data);
-           localStorage.setItem('ride_partner_user', JSON.stringify(res.data));
+           if (res.data.status === 'restricted') {
+             logout();
+           } else {
+             setUser(res.data);
+             localStorage.setItem('ride_partner_user', JSON.stringify(res.data));
+           }
         })
-        .catch(err => console.error("Failed to refresh user auth state", err));
+        .catch(err => {
+           console.error("Failed to refresh user auth state", err);
+           if (err.response && err.response.status === 403) {
+             logout();
+           }
+        });
     }
     setLoading(false);
   }, []);
@@ -30,10 +39,17 @@ export const AuthProvider = ({ children }) => {
     if (user?.id) {
        try {
          const res = await axios.get(`https://deliver-user-service.onrender.com/${user.id}`);
-         setUser(res.data);
-         localStorage.setItem('ride_partner_user', JSON.stringify(res.data));
+         if (res.data.status === 'restricted') {
+           logout();
+         } else {
+           setUser(res.data);
+           localStorage.setItem('ride_partner_user', JSON.stringify(res.data));
+         }
        } catch (err) {
          console.error("Failed to refresh user", err);
+         if (err.response && err.response.status === 403) {
+           logout();
+         }
        }
     }
   };

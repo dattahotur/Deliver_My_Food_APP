@@ -180,7 +180,7 @@ app.put('/admin/verify/:id', async (req, res) => {
 // Admin: Get all reports across all users (active users and unresolved reports only)
 app.get('/admin/all-reports', async (req, res) => {
   try {
-    const drivers = await DeliveryPartner.find({ status: { $ne: 'deleted' } });
+    const drivers = await DeliveryPartner.find({ status: { $nin: ['deleted', 'restricted'] } });
     const allReports = [];
     drivers.forEach(u => {
       if (u.reports && u.reports.length > 0) {
@@ -221,6 +221,9 @@ app.post('/login', async (req, res) => {
   try {
     const user = await DeliveryPartner.findOne({ email, status: { $ne: 'deleted' } });
     if (!user) return res.status(401).json({ error: 'Invalid credentials or account deleted' });
+    if (user.status === 'restricted') {
+      return res.status(403).json({ error: 'Your account has been restricted. Contact admin.' });
+    }
     if (password !== user.password) return res.status(401).json({ error: 'Invalid credentials' });
     const obj = user.toObject();
     delete obj.password;
@@ -273,6 +276,9 @@ app.get('/:id', async (req, res) => {
   try {
     const user = await DeliveryPartner.findOne({ id: Number(req.params.id) });
     if (user) {
+      if (user.status === 'restricted') {
+        return res.status(403).json({ error: 'Your account has been restricted. Contact admin.' });
+      }
       await syncUserEarnings(user);
       return res.json(user);
     }
@@ -340,6 +346,19 @@ app.delete('/:id', async (req, res) => {
     res.status(500).json({
       error: "Server error"
     });
+  }
+});
+
+// Restrict user (admin)
+app.put('/:id/restrict', async (req, res) => {
+  try {
+    const user = await DeliveryPartner.findOne({ id: Number(req.params.id) });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    user.status = 'restricted';
+    await user.save();
+    res.json({ message: 'User account restricted', user });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
