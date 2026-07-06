@@ -185,7 +185,7 @@ app.get('/admin/all-reports', async (req, res) => {
     drivers.forEach(u => {
       if (u.reports && u.reports.length > 0) {
         u.reports.forEach(r => {
-          if (!r.actionTaken) {
+          if (r.resolved !== true && !r.actionTaken) {
             allReports.push({ ...r, targetUserId: u.id, targetUserName: u.name });
           }
         });
@@ -540,8 +540,9 @@ app.post('/warn-rider', async (req, res) => {
 
     // Mark the corresponding report as acted upon/resolved
     if (user.reports && user.reports.length > 0) {
-      const report = user.reports.find(r => String(r.orderId) === String(orderId));
+      const report = user.reports.find(r => String(r.orderId) === String(orderId) && r.resolved !== true);
       if (report) {
+        report.resolved = true;
         report.actionTaken = 'warning';
         user.markModified('reports');
       }
@@ -595,7 +596,8 @@ app.post(/.*feedback$/, async (req, res) => {
       feedback: feedback || message || '',
       fromId, fromName: fromName || 'Anonymous',
       orderId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      resolved: false
     };
     
     if (isIssue || type === "report") {

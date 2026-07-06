@@ -46,6 +46,7 @@ const AdminReports = () => {
       if (type === 'restrict') {
         await axios.put(`https://deliver-user-service.onrender.com/${report.targetUserId}/restrict`);
         addToast(`Account for ${report.targetUserName} restricted.`, 'error');
+        setReports(prev => prev.filter(r => r.targetUserId !== report.targetUserId));
       } else {
         await axios.post('https://deliver-user-service.onrender.com/warn-rider', {
           targetUserId: report.targetUserId,
@@ -54,6 +55,7 @@ const AdminReports = () => {
           orderId: report.orderId
         });
         addToast(`Formal warning sent to ${report.targetUserName}.`, 'success');
+        setReports(prev => prev.filter(r => r.orderId !== report.orderId));
       }
       fetchData(); // Refresh the lists so the issue disappears and moves to the correct section
     } catch (err) {
