@@ -146,7 +146,7 @@ app.get('/', async (req, res) => {
 // Admin: Get all users including deleted
 app.get('/admin/all', async (req, res) => {
   try {
-    const drivers = await DeliveryPartner.find({});
+    const drivers = await DeliveryPartner.find({}).select("-password");
     res.json(drivers);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -156,7 +156,7 @@ app.get('/admin/all', async (req, res) => {
 // Admin: Get all pending verifications
 app.get('/admin/verifications', async (req, res) => {
   try {
-    const pending = await DeliveryPartner.find({ verificationStatus: 'pending' });
+    const pending = await DeliveryPartner.find({ verificationStatus: 'pending' }).select("-password");
     res.json(pending);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -171,7 +171,9 @@ app.put('/admin/verify/:id', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     user.verificationStatus = status;
     await user.save();
-    res.json({ message: `User verification ${status}`, user });
+    const obj = user.toObject();
+    delete obj.password;
+    res.json({ message: `User verification ${status}`, user: obj });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
