@@ -217,7 +217,9 @@ const Dashboard = () => {
 
 
       {/* Formal Warning Banner */}
-      {user?.warnings && user.warnings.length > 0 && (
+      {user?.warnings && user.warnings.filter(w => w.acknowledged !== true).length > 0 && (() => {
+        const pendingWarning = user.warnings.filter(w => w.acknowledged !== true).slice(-1)[0];
+        return (
         <div style={{ 
           backgroundColor: 'rgba(239, 68, 68, 0.1)', 
           border: '2px solid var(--danger)', 
@@ -234,10 +236,10 @@ const Dashboard = () => {
             <h3 style={{ fontWeight: 800, fontSize: '1.1rem', margin: 0 }}>CRITICAL FORMAL WARNING</h3>
           </div>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-main)', fontWeight: 600 }}>
-            {user.warnings[user.warnings.length - 1].reason}
+            {pendingWarning.reason}
           </p>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            Sent by: {user.warnings[user.warnings.length - 1].adminName} on {new Date(user.warnings[user.warnings.length - 1].timestamp).toLocaleDateString()}
+            Sent by: {pendingWarning.adminName} on {new Date(pendingWarning.timestamp).toLocaleDateString()}
           </p>
           <button 
             onClick={handleDismissWarning} 
@@ -259,7 +261,8 @@ const Dashboard = () => {
             Acknowledge & Dismiss
           </button>
         </div>
-      )}
+        );
+      })()}
 
       {/* Offline Overlay Banner */}
       {!isOnline && (

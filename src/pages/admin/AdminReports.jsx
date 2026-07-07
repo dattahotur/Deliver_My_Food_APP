@@ -52,15 +52,20 @@ const AdminReports = () => {
           targetUserId: report.targetUserId,
           reason: report.feedback,
           adminName: "Platform Admin",
-          orderId: report.orderId
+          orderId: report.orderId,
+          reportId: report.reportId
         });
         addToast(`Formal warning sent to ${report.targetUserName}.`, 'success');
-        setReports(prev => prev.filter(r => r.orderId !== report.orderId));
+        setReports(prev => prev.filter(r => r.reportId !== report.reportId));
       }
       fetchData(); // Refresh the lists so the issue disappears and moves to the correct section
     } catch (err) {
       console.error("Action failed:", err);
-      addToast("Failed to process action. Please try again.", "error");
+      if (err.response && err.response.status === 409) {
+        addToast("Rider already has a pending warning. Wait until rider acknowledges.", "error");
+      } else {
+        addToast("Failed to process action. Please try again.", "error");
+      }
     } finally {
       setActionId(null);
     }
@@ -128,8 +133,8 @@ const AdminReports = () => {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {reports.map((report, idx) => (
-              <div key={idx} className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--danger)' }}>
+            {reports.map((report) => (
+              <div key={report.reportId || report.orderId} className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--danger)' }}>
                 <div className="report-header-flex" style={{ marginBottom: '1rem' }}>
                    <div>
                       <h3 style={{ fontSize: '1.25rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>

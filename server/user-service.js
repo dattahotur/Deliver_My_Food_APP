@@ -524,10 +524,16 @@ app.put('/:id/verify', async (req, res) => {
 
 // Send formal warning to rider
 app.post('/warn-rider', async (req, res) => {
-  const { targetUserId, reason, adminName, orderId } = req.body;
+  const { targetUserId, reason, adminName, orderId, reportId } = req.body;
   try {
     const user = await DeliveryPartner.findOne({ id: Number(targetUserId) });
     if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Block if rider already has a pending unacknowledged warning
+    const hasPendingWarning = (user.warnings || []).some(w => w.acknowledged !== true);
+    if (hasPendingWarning) {
+      return res.status(409).json({ error: 'Rider already has a pending warning. Wait until rider acknowledges.' });
+    }
     
     if (!user.warnings) user.warnings = [];
     const warning = {
@@ -535,14 +541,17 @@ app.post('/warn-rider', async (req, res) => {
       reason: reason || 'Violation of platform terms.',
       adminName: adminName || 'System Admin',
       timestamp: new Date().toISOString(),
-      isActive: true
+      isActive: true,
+      acknowledged: false
     };
     user.warnings.push(warning);
     user.markModified('warnings');
 
-    // Mark the corresponding report as acted upon/resolved
+    // Mark the corresponding report as acted upon/resolved using unique reportId
     if (user.reports && user.reports.length > 0) {
-      const report = user.reports.find(r => String(r.orderId) === String(orderId) && r.resolved !== true);
+      const report = reportId
+        ? user.reports.find(r => String(r.reportId) === String(reportId) && r.resolved !== true)
+        : user.reports.find(r => String(r.orderId) === String(orderId) && r.resolved !== true);
       if (report) {
         report.resolved = true;
         report.actionTaken = 'warning';
@@ -557,15 +566,17 @@ app.post('/warn-rider', async (req, res) => {
   }
 });
 
-// Clear all warnings for a user
+// Acknowledge all warnings for a user (marks as acknowledged, does not delete)
 app.post('/:id/clear-warnings', async (req, res) => {
   try {
     const user = await DeliveryPartner.findOne({ id: Number(req.params.id) });
     if (!user) return res.status(404).json({ error: 'User not found' });
-    user.warnings = [];
-    user.markModified('warnings');
+    if (user.warnings && user.warnings.length > 0) {
+      user.warnings.forEach(w => { w.acknowledged = true; w.isActive = false; });
+      user.markModified('warnings');
+    }
     await user.save();
-    res.json({ message: 'All warnings cleared' });
+    res.json({ message: 'All warnings acknowledged' });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -594,6 +605,7 @@ app.post(/.*feedback$/, async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     
     const record = {
+      reportId: Date.now().toString() + Math.random().toString(36).substr(2, 5),
       rating: Number(rating) || 5,
       feedback: feedback || message || '',
       fromId, fromName: fromName || 'Anonymous',
