@@ -277,14 +277,14 @@ app.post('/register', async (req, res) => {
 app.get('/:id', async (req, res) => {
   try {
     const user = await DeliveryPartner.findOne({ id: Number(req.params.id) });
-    if (user) {
+    if (user && user.status !== 'deleted') {
       if (user.status === 'restricted') {
-        return res.status(403).json({ error: 'Your account has been restricted. Contact admin.' });
+        return res.status(403).json({ error: 'Account restricted' });
       }
       await syncUserEarnings(user);
       return res.json(user);
     }
-    res.status(404).json({ error: 'User not found' });
+    res.status(404).json({ error: 'Account not found' });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }

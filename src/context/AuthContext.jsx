@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useToast } from './ToastContext';
 
 const AuthContext = createContext();
 
@@ -8,6 +9,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { addToast } = useToast();
 
   useEffect(() => {
     // Check local storage for persistent login
@@ -20,6 +22,7 @@ export const AuthProvider = ({ children }) => {
         .then(res => {
            if (res.data.status === 'restricted') {
              logout();
+             addToast('Your account has been restricted. Please contact admin.', 'error');
            } else {
              setUser(res.data);
              localStorage.setItem('ride_partner_user', JSON.stringify(res.data));
@@ -27,8 +30,9 @@ export const AuthProvider = ({ children }) => {
         })
         .catch(err => {
            console.error("Failed to refresh user auth state", err);
-           if (err.response && err.response.status === 403) {
+           if (err.response && (err.response.status === 403 || err.response.status === 404)) {
              logout();
+             addToast('Your account has been restricted. Please contact admin.', 'error');
            }
         });
     }
@@ -41,14 +45,16 @@ export const AuthProvider = ({ children }) => {
          const res = await axios.get(`https://deliver-user-service.onrender.com/${user.id}`);
          if (res.data.status === 'restricted') {
            logout();
+           addToast('Your account has been restricted. Please contact admin.', 'error');
          } else {
            setUser(res.data);
            localStorage.setItem('ride_partner_user', JSON.stringify(res.data));
          }
        } catch (err) {
          console.error("Failed to refresh user", err);
-         if (err.response && err.response.status === 403) {
+         if (err.response && (err.response.status === 403 || err.response.status === 404)) {
            logout();
+           addToast('Your account has been restricted. Please contact admin.', 'error');
          }
        }
     }

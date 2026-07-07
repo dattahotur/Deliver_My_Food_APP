@@ -3,11 +3,39 @@ import { Home, ListOrdered, DollarSign, User, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Layout = () => {
   const { user, logout } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const checkStatus = async () => {
+      try {
+        const res = await axios.get(`https://deliver-user-service.onrender.com/${user.id}`);
+        if (res.data.status === 'restricted' || res.data.status === 'deleted') {
+          logout();
+          addToast("Your account has been restricted. Please contact admin.", "error");
+          navigate('/login');
+        }
+      } catch (err) {
+        if (err.response && (err.response.status === 403 || err.response.status === 404)) {
+          logout();
+          addToast("Your account has been restricted. Please contact admin.", "error");
+          navigate('/login');
+        }
+      }
+    };
+
+    checkStatus();
+
+    const interval = setInterval(checkStatus, 30000);
+
+    return () => clearInterval(interval);
+  }, [user?.id, logout, navigate, addToast]);
 
   const handleLogout = () => {
     logout();
