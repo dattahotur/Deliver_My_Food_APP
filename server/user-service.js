@@ -549,9 +549,13 @@ app.post('/warn-rider', async (req, res) => {
 
     // Mark the corresponding report as acted upon/resolved using unique reportId
     if (user.reports && user.reports.length > 0) {
-      const report = reportId
-        ? user.reports.find(r => String(r.reportId) === String(reportId) && r.resolved !== true)
-        : user.reports.find(r => String(r.orderId) === String(orderId) && r.resolved !== true);
+      let report;
+      if (reportId) {
+        report = user.reports.find(r => String(r.reportId) === String(reportId) && r.resolved !== true);
+      }
+      if (!report) {
+        report = user.reports.find(r => r.resolved !== true && String(r.orderId) === String(orderId));
+      }
       if (report) {
         report.resolved = true;
         report.actionTaken = 'warning';
@@ -605,7 +609,7 @@ app.post(/.*feedback$/, async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     
     const record = {
-      reportId: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+      reportId: new mongoose.Types.ObjectId().toString(),
       rating: Number(rating) || 5,
       feedback: feedback || message || '',
       fromId, fromName: fromName || 'Anonymous',

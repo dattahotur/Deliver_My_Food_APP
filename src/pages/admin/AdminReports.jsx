@@ -33,14 +33,14 @@ const AdminReports = () => {
   };
 
   const handleAction = async (report, type) => {
-    const reportId = report.orderId || report.id;
+    const uniqueId = report.reportId || report.orderId || report.id;
     
     if (type === 'restrict') {
       const confirmed = window.confirm("Are you sure you want to restrict this rider account?");
       if (!confirmed) return;
     }
 
-    setActionId(`${reportId}-${type}`);
+    setActionId(`${uniqueId}-${type}`);
     
     try {
       if (type === 'restrict') {
@@ -161,14 +161,14 @@ const AdminReports = () => {
                     disabled={actionId !== null}
                     onClick={() => handleAction(report, 'restrict')}
                     className="btn" style={{ padding: '0.5rem 1rem', border: '1px solid var(--border)', backgroundColor: 'transparent', color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {actionId === `${(report.orderId || report.id)}-restrict` ? <Loader2 size={16} className="animate-spin" /> : null}
+                    {actionId === `${(report.reportId || report.orderId || report.id)}-restrict` ? <Loader2 size={16} className="animate-spin" /> : null}
                     Restrict Account
                   </button>
                   <button 
                     disabled={actionId !== null}
                     onClick={() => handleAction(report, 'warning')}
                     className="btn btn-primary" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {actionId === `${(report.orderId || report.id)}-warning` ? <Loader2 size={16} className="animate-spin" /> : null}
+                    {actionId === `${(report.reportId || report.orderId || report.id)}-warning` ? <Loader2 size={16} className="animate-spin" /> : null}
                     Send Formal Warning
                   </button>
                 </div>
