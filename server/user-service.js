@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -78,6 +79,12 @@ const seedDrivers = async () => {
             notifications: []
           }
         ];
+      }
+      // Hash plain passwords before seeding
+      for (const driver of initialDrivers) {
+        if (driver.password && !driver.password.startsWith('$2a$') && !driver.password.startsWith('$2b$')) {
+          driver.password = await bcrypt.hash(driver.password, 10);
+        }
       }
       await DeliveryPartner.insertMany(initialDrivers);
       console.log('[DELIVERY-USER-SERVICE] Seeding completed successfully');
@@ -226,7 +233,22 @@ app.post('/login', async (req, res) => {
     if (user.status === 'restricted') {
       return res.status(403).json({ error: 'Your account has been restricted. Contact admin.' });
     }
-    if (password !== user.password) return res.status(401).json({ error: 'Invalid credentials' });
+    
+    // Support safe migration from plain text to bcrypt
+    let isMatch = false;
+    if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+      isMatch = await bcrypt.compare(password, user.password);
+    } else {
+      isMatch = (password === user.password);
+      if (isMatch) {
+        // Migrate to hashed password immediately
+        user.password = await bcrypt.hash(password, 10);
+        await user.save();
+        console.log(`Migrated user ${user.id} password to bcrypt`);
+      }
+    }
+    
+    if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
     const obj = user.toObject();
     delete obj.password;
     res.json({ message: 'Login successful', user: obj });
@@ -246,9 +268,13 @@ app.post('/register', async (req, res) => {
     const maxUser = await DeliveryPartner.findOne().sort({ id: -1 });
     const newId = maxUser ? maxUser.id + 1 : 1;
 
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
     const newUser = new DeliveryPartner({
       id: newId,
       ...req.body,
+      password: hashedPassword,
       role: 'delivery-partner',
       status: 'active',
       verificationStatus: 'none',
